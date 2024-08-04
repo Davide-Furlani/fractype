@@ -1,4 +1,4 @@
-//#![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 
 mod styles;
 mod buttons;
@@ -161,34 +161,42 @@ impl State {
                 (p, rand::thread_rng().gen_range(p+1..=120))
             }
             Ftype::Improper => {
+                let mut count = 0;
                 let mut found = false;
                 let mut num: u32 = 0;
                 let mut den: u32 = 0;
-                while !found { // todo! cambia che se la frazione non va bene aggiusta il denominaotre del resto della divisione
+                while !found {
                     num = rand::thread_rng().gen_range(2..=120);
                     den = rand::thread_rng().gen_range(1..num);
                     if num % den != 0 {
                         found = true;
                     }
+                    count += 1;
                 }
+                println!("{}", count);
                 (num, den)
             }
             Ftype::Apparent => {
+                let mut count = 0;
                 let mut found = false;
                 let mut num: u32 = 0;
                 let mut den: u32 = 0;
-                while !found { // todo! cambia che se la frazione non va bene aggiusta il denominaotre del resto della divisione
+                while !found {
                     num = rand::thread_rng().gen_range(1..=119);
                     let mut divisors: Vec<u32> = vec![];
-                    for i in 1..=(num as f32).sqrt() as u32 {
+                    divisors.push(1);
+                    divisors.push(num);
+                    for i in 2..=(num as f32).sqrt() as u32 {
                         if num % i == 0 { divisors.push(i); }
                     }
-                    if divisors.len() > 0 {
+                    if divisors.len() > 2 {
                         den = num / divisors[rand::thread_rng().gen_range(0..divisors.len())];
                         found = true;
                     }
+                    count += 1;
                 }
                 if num == 0 || den == 0 { panic!("num or den found but still 0\n num: {}\t den: {}", num, den) };
+                println!("{}", count);
                 (num, den)
             }
         };
@@ -506,14 +514,14 @@ impl Application for State{
 }
 
 
-// static ICON: &[u8] = include_bytes!("../res/icon/propinva.png");
-// const ICON_HEIGHT: u32 = 512;     // todo! add icon
-// const ICON_WIDTH: u32 = 512;
+static ICON: &[u8] = include_bytes!("../res/icon/fractype_512.png");
+const ICON_HEIGHT: u32 = 512;
+const ICON_WIDTH: u32 = 512;
 
 fn main() -> iced::Result {
 
-    // let image = image::load_from_memory(ICON).unwrap();  // todo! add icon
-    // let icon = window::icon::from_rgba(image.as_bytes().to_vec(), ICON_HEIGHT, ICON_WIDTH).unwrap();
+    let image = image::load_from_memory(ICON).unwrap();
+    let icon = window::icon::from_rgba(image.as_bytes().to_vec(), ICON_HEIGHT, ICON_WIDTH).unwrap();
 
     let settings = Settings{
         id: None,
@@ -521,7 +529,7 @@ fn main() -> iced::Result {
             size: Size { width: 600.0, height: 400.0 },
             position: window::Position::Centered,
             resizable: false,
-            // icon: Some(icon),    // todo! add icon
+            icon: Some(icon),
             ..Default::default()
         },
         antialiasing: true,
